@@ -1,0 +1,72 @@
+{% extends 'layout.twig' %}
+{% block title %}GitList{% endblock %}
+
+{% block body %}
+{% include 'navigation.twig' %}
+
+<div class="container">
+    {% if isadmin %}<div class="buttons_bar pull-right">
+        <span class="fa fa-folder-open"></span>  <a href="{{ path('repo', {}) }}">Create Repository</a>
+    </div>
+    <br /><br />{% endif%}
+
+    <script>
+        function set_repo(path, repo) {
+            $('span[name=repo-name]').text(repo);
+            $('input[name=path]').val(path);
+        }
+    </script>
+    <div class="modal" id="dlgConfirmDelete">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button class="close" aria-hidden="true" type="button" data-dismiss="modal">×</button>
+              <h4 class="modal-title">Confirm repository deletion</h4>
+            </div>
+            <div class="modal-body">
+              You are going to delete <strong><span name="repo-name">sss</span></strong> repository. This cannot be undone.<br/><br/>
+              Continue?
+            </div>
+            <div class="modal-footer">
+              <a class="btn" href="#" data-dismiss="modal">Cancel</a>
+              <a class="btn btn-primary" href="#" onclick="$('form[name=form-delete]').submit();">Delete</a>
+            </div>
+          </div>
+        </div>
+    </div>
+    <form name="form-delete" action="{{ path('repo_process', {}) }}" method="POST">
+        <input type="hidden" name="path" value="" />
+        <input type="hidden" name="action" value="delete" />
+    </form>
+
+    {% for repository in repositories %}
+    <div class="repository">
+        <div class="repository-header">
+            <span class="fa fa-folder-open"></span>  <a href="{{ path('repository', {repo: repository.name}) }}">{{ repository.normalizedname }}</a>
+            <a href="{{ path('rss', {repo: repository.name, branch: 'master'}) }}"><span class="fa fa-rss rss-icon pull-right"></span></a>
+            {% if isadmin %}<a href="{{ path('repo', {repo: repository.name}) }}"><span class="fa fa-edit edit-icon pull-right"></span></a>{% endif%}
+            {% if isadmin %}<a href="#dlgConfirmDelete" data-toggle="modal" onclick="set_repo('{{ repository.path }}','{{ repository.name }}')"><span class="fa fa-times delete-icon pull-right"></span></a>{% endif%}
+        </div>
+        <div class="repository-body">
+            {% if repository.description %}
+            <p>{{ repository.description }}</p>
+            {% else %}
+            <p>There is no repository description file. Please, create one to remove this message.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% if repositories is empty %}
+    <div class="repository">
+        <div class="repository-header">
+            <span>No repositories found.</span>
+        </div>
+    </div>
+    {% endif%}
+
+
+    <hr />
+
+    {% include 'footer.twig' %}
+</div>
+{% endblock %}

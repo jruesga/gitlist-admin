@@ -1,0 +1,81 @@
+{% extends 'layout.twig' %}
+{% block title %}GitList{% endblock %}
+
+{% block body %}
+{% include 'navigation.twig' %}
+
+<div class="container">
+    <script>
+        function changeStore(newStore) {
+            $('input[name=store]').val(newStore);
+            $('span[name=dropdown-toggle-store]').text(newStore);
+        }
+    </script>
+    <div class="page-title">
+        <span class="fa fa-folder-open"></span> {% if action == 'modify' %} Modify Repository {% else %} Create Repository {% endif %}
+    </div>
+    <br />
+    {% if validation_error == true %}
+    <div class="alert alert-danger">
+        <strong>Validation error!</strong>&nbsp;&nbsp;&nbsp;{{ validation_msg }}
+    </div>
+    {% endif %}
+    <form action="{{ path('repo_process', {}) }}" method="POST">
+        <div class="header row">
+                <div class="col-sm-12 {% if validation_error == true %}has-error{% endif %}">
+                    <span class="form-control-title">Name:</span>
+                    {% if action == 'modify' %}
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" disabled>Store: <strong>{{ repository.store }}</strong> <span class="caret"></span></button>
+                    {% else %}
+                    <div class="btn-group pull-left space-right">
+                        <button id type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Store: <strong><span name="dropdown-toggle-store">{{ stores[0] }}<span></strong> <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Stores</li>
+                            {% for item in stores %}
+                                <li><a href="#" onclick="changeStore('{{ item }}');">{{ item }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <input type="search" name="name" {% if action == 'modify' %} readonly {% endif %}
+                    class="form-control input-sm form-control-small" placeholder="Repository name..." value="{{ repository.normalizedname }}"
+                    onkeyup="if (this.value.length > 0 && this.value.toLowerCase().substr(this.value.length - 4) != '.git') { $('input[type=submit]').removeAttr('disabled'); } else { $('input[type=submit]').attr('disabled', 'disabled'); }">&nbsp;.git
+                </div>
+        </div>
+        <div class="header row form-group">
+            <div class="col-sm-12">
+                <span class="form-control-title">Description:</span> <textarea name="description" class="form-control input-sm"
+                placeholder="Repository description...">{{ repository.description }}</textarea>
+            </div>
+        </div>
+        {% if action == 'create' %}
+        <div class="header row form-group">
+            <div class="col-sm-12">
+                <span class="form-control-title"><input type="checkbox" name="initialized" {% if initialized %}checked{% endif %}>&nbsp;<strong>Initialize this repository with a README</strong></input></span>
+            </div>
+        </div>
+        {% endif %}
+        <div class="header row">
+            <div class="col-sm-12">
+                {% if action == 'modify' %}
+                <input type="submit" class="btn btn-primary" value="Modify"></input>
+                {% else %}
+                <input type="submit" class="btn btn-primary" value="Create" {% if repository.name == null %}disabled{% endif %}></input>
+                {% endif %}
+                <a href="{{ path('homepage', {}) }}"><button type="button" class="btn btn-default">Cancel</button></a>
+            </div>
+        </div>
+        {% if action == 'modify' %}
+        <input type="hidden" name="action" value="modify" />
+        <input type="hidden" name="store" value="{{ repository.store }}" />
+        {% else %}
+        <input type="hidden" name="action" value="create" />
+        <input type="hidden" name="store" value="{{ stores[0] }}" />
+        {% endif %}
+     </form>
+
+    <hr />
+
+    {% include 'footer.twig' %}
+</div>
+{% endblock %}
