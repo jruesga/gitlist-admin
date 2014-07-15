@@ -29,10 +29,6 @@ to this configuration) with SSL and Basic authentication (private pull and push)
     ServerAdmin <webadmin email account>
     DocumentRoot /var/www/gitlist-admin
 
-    # IMAP Authorization Tokens
-    AddExternalAuth imap_auth /etc/apache2/mod_authzs/users-authenticator.py
-    SetExternalAuthMethod imap_auth pipe
-
     <Files config.ini>
         Require all denied
     </Files>
